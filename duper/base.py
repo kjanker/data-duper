@@ -3,6 +3,7 @@ base.py
 ====================================
 The core module of my example project.
 """
+from typing import Hashable, List
 import numpy as np
 import pandas as pd
 
@@ -14,7 +15,7 @@ class Duper(object):
     """The main class of data-duper. Use this to fit a data set and dupe it."""
 
     def __init__(self):
-        self.columns = []
+        self._columns = []
         self.dtypes = {}
         self.methods = {}
 
@@ -37,6 +38,10 @@ class Duper(object):
     def __repr__(self):
         return f"{self.__class__.__name__}"
 
+    @property
+    def columns(self) -> List[Hashable]:
+        return self._columns
+
     def fit(self, df: pd.DataFrame, category_threshold: float = 0.05):
         """
         Fit the data generator on a provided dataset.
@@ -49,7 +54,7 @@ class Duper(object):
             Fraction of unique values until which category duper is perferred,
             should be in [0,1].
         """
-        self.columns = df.columns
+        self._columns = list(df.columns)
         self.dtypes = df.dtypes.to_dict()
 
         self.methods = {}
