@@ -8,7 +8,7 @@ import pandas as pd
 from numpy.typing import ArrayLike, NDArray
 
 
-class BaseDuper(object):
+class BaseDuper:
     """Abstract class of the value generators."""
 
     def __init__(self, data: ArrayLike):

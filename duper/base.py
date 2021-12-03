@@ -13,7 +13,7 @@ from .methods import (BaseDuper, CategoryDuper, ConstantDuper, DatetimeDuper,
                       FloatDuper, IntDuper, RegExDuper)
 
 
-class Duper(object):
+class Duper:
     """The main class of data-duper. Use this to fit a data set and dupe it."""
 
     def __init__(self):
