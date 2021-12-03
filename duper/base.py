@@ -3,12 +3,14 @@ base.py
 ====================================
 The core module of my example project.
 """
-from typing import Hashable, List
+from typing import Dict, Hashable, List
+
 import numpy as np
 import pandas as pd
+from numpy.typing import DTypeLike
 
-from .methods import (CategoryDuper, ConstantDuper, DatetimeDuper, FloatDuper,
-                      IntDuper, RegExDuper)
+from .methods import (BaseDuper, CategoryDuper, ConstantDuper, DatetimeDuper,
+                      FloatDuper, IntDuper, RegExDuper)
 
 
 class Duper(object):
@@ -16,8 +18,8 @@ class Duper(object):
 
     def __init__(self):
         self._columns = []
-        self.dtypes = {}
-        self.methods = {}
+        self._dtypes = {}
+        self._methods = {}
 
     def __str__(self) -> str:
         if len(self.methods) > 0:
@@ -42,6 +44,14 @@ class Duper(object):
     def columns(self) -> List[Hashable]:
         return self._columns
 
+    @property
+    def dtypes(self) -> Dict[Hashable, DTypeLike]:
+        return self._dtypes
+
+    @property
+    def methods(self) -> Dict[Hashable, BaseDuper]:
+        return self._methods
+
     def fit(self, df: pd.DataFrame, category_threshold: float = 0.05):
         """
         Fit the data generator on a provided dataset.
@@ -55,22 +65,22 @@ class Duper(object):
             should be in [0,1].
         """
         self._columns = list(df.columns)
-        self.dtypes = df.dtypes.to_dict()
+        self._dtypes = df.dtypes.to_dict()
 
-        self.methods = {}
+        self._methods = {}
         for col in df.columns:
 
             value_counts = df[col].value_counts(dropna=False)
             unique_values = value_counts.index[~value_counts.index.isna()]
 
             if len(unique_values) == 0:
-                self.methods[col] = ConstantDuper(
+                self._methods[col] = ConstantDuper(
                     value=df[col].unique()[0], na_rate=1.0
                 )
 
             elif len(unique_values) == 1:
                 na_rate = value_counts.get(np.nan, 0) / len(df[col])
-                self.methods[col] = ConstantDuper(
+                self._methods[col] = ConstantDuper(
                     value=unique_values[0], na_rate=na_rate
                 )
 
@@ -78,25 +88,25 @@ class Duper(object):
                 self.dtypes[col].name == "bool"
                 or len(unique_values) / len(df) < category_threshold
             ):
-                self.methods[col] = CategoryDuper(data=df[col].values)
+                self._methods[col] = CategoryDuper(data=df[col].values)
 
             elif self.dtypes[col].name.startswith("float"):
-                self.methods[col] = FloatDuper(data=df[col])
+                self._methods[col] = FloatDuper(data=df[col])
 
             elif self.dtypes[col].name.startswith("int"):
-                self.methods[col] = IntDuper(data=df[col])
+                self._methods[col] = IntDuper(data=df[col])
 
             elif self.dtypes[col].name.startswith("datetime"):
-                self.methods[col] = DatetimeDuper(data=df[col])
+                self._methods[col] = DatetimeDuper(data=df[col])
 
             elif (
                 self.dtypes[col].name in ["string", "object"]
                 and len(set(map(len, unique_values))) == 1
             ):
-                self.methods[col] = RegExDuper(data=df[col])
+                self._methods[col] = RegExDuper(data=df[col])
 
             else:
-                self.methods[col] = CategoryDuper(data=df[col].values)
+                self._methods[col] = CategoryDuper(data=df[col].values)
 
     def make(self, size=0, with_na=False) -> pd.DataFrame:
         """Create a new random pandas DataFrame after fitting the generator.
