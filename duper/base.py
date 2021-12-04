@@ -5,18 +5,17 @@ The core module of my example project.
 """
 from typing import Dict, Hashable, List
 
-import numpy as np
 import pandas as pd
 from numpy.typing import DTypeLike
 
-from .methods import (BaseDuper, CategoryDuper, ConstantDuper, DatetimeDuper,
-                      FloatDuper, IntDuper, RegExDuper)
+from .analysis import choose_method
+from .methods import BaseDuper
 
 
 class Duper:
     """The main class of data-duper. Use this to fit a data set and dupe it."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._columns = []
         self._dtypes = {}
         self._methods = {}
@@ -37,7 +36,7 @@ class Duper:
         else:
             return f"{self.__class__.__name__}, unfitted"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}"
 
     @property
@@ -52,9 +51,8 @@ class Duper:
     def methods(self) -> Dict[Hashable, BaseDuper]:
         return self._methods
 
-    def fit(self, df: pd.DataFrame, category_threshold: float = 0.05):
-        """
-        Fit the data generator on a provided dataset.
+    def fit(self, df: pd.DataFrame, category_threshold: float = 0.05) -> None:
+        """Fit the data generator on a provided dataset.
 
         Parameters
         ---------
@@ -69,50 +67,19 @@ class Duper:
 
         self._methods = {}
         for col in df.columns:
+            self._methods[col] = choose_method(
+                data=df[col], category_threshold=category_threshold
+            )
 
-            value_counts = df[col].value_counts(dropna=False)
-            unique_values = value_counts.index[~value_counts.index.isna()]
-
-            if len(unique_values) == 0:
-                self._methods[col] = ConstantDuper(
-                    value=df[col].unique()[0], na_rate=1.0
-                )
-
-            elif len(unique_values) == 1:
-                na_rate = value_counts.get(np.nan, 0) / len(df[col])
-                self._methods[col] = ConstantDuper(
-                    value=unique_values[0], na_rate=na_rate
-                )
-
-            elif (
-                self.dtypes[col].name == "bool"
-                or len(unique_values) / len(df) < category_threshold
-            ):
-                self._methods[col] = CategoryDuper(data=df[col].values)
-
-            elif self.dtypes[col].name.startswith("float"):
-                self._methods[col] = FloatDuper(data=df[col])
-
-            elif self.dtypes[col].name.startswith("int"):
-                self._methods[col] = IntDuper(data=df[col])
-
-            elif self.dtypes[col].name.startswith("datetime"):
-                self._methods[col] = DatetimeDuper(data=df[col])
-
-            elif (
-                self.dtypes[col].name in ["string", "object"]
-                and len(set(map(len, unique_values))) == 1
-            ):
-                self._methods[col] = RegExDuper(data=df[col])
-
-            else:
-                self._methods[col] = CategoryDuper(data=df[col].values)
-
-    def make(self, size=0, with_na=False) -> pd.DataFrame:
+    def make(self, size: int, with_na: bool = False) -> pd.DataFrame:
         """Create a new random pandas DataFrame after fitting the generator.
 
         Parameters
         ---------
+        size: int
+            the size of the new data frame
+        with_na: bool, default=False
+            defines, if NA values will be replicated to the new data frame
 
         Returns
         ---------
