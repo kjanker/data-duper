@@ -2,6 +2,9 @@
 
 data-duper is a tool to replicate the structure of private or protected data for testing.
 
+[![GitHub license](https://img.shields.io/github/license/kjanker/data-duper.svg)](https://github.com/kjanker/data-duper/blob/main/LICENSE)
+[![Testing](https://github.com/kjanker/data-duper/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/kjanker/data-duper/actions/workflows/ci.yml)
+
 ## What does it solve?
 
 When testing the data handling of software, it is best to use data as similar to the real data as possible - without revealing sensitive information to the test environment. This is where data-duper comes into play. It allows you to create an authentic replicate of your private or protected data.
