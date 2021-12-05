@@ -8,17 +8,16 @@ from duper import Duper, methods
 @pytest.fixture
 def df_train():
     return pd.DataFrame(
-        data=dict(
-            const=["baz"] * 20,
-            datetime=np.datetime64("2012-12-21") + np.array(range(0, 100, 5)),
-            integer=np.array(range(20)) * np.array(range(20)),
-            float=1 / np.array(range(1, 21)),
-            string=["foo"] * 5 + ["bar"] * 10 + ["foobar"] * 5,
-            regex=list(
-                map("-".join, zip(list("abcdefghij"), list("0123456789")))
-            )
-            * 2,
-        )
+        data={
+            "const": ["baz"] * 20,
+            "datetime": np.datetime64("2012-12-21")
+            + np.array(range(0, 100, 5)),
+            "integer": np.array(range(20)) * np.array(range(20)),
+            "float": 1 / np.array(range(1, 21)),
+            "string": ["foo"] * 5 + ["bar"] * 10 + ["foobar"] * 5,
+            "regex": 2
+            * list(map("-".join, zip(list("abcdefghij"), list("0123456789")))),
+        }
     )
 
 

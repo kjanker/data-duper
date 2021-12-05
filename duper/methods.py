@@ -195,14 +195,14 @@ class RegExDuper(BaseDuper):
         from itertools import zip_longest
 
         # break words in data into list of characters
-        l = map(list, data)
+        m = map(list, data)
         # transpose character matrix: sublists hold i-th char of each value
-        l = map(list, zip_longest(*l, fillvalue=""))
+        m = map(list, zip_longest(*m, fillvalue=""))
         # reduce list to unique values
-        l = map(set, l)
-        l = map(list, l)
+        m = map(set, m)
+        m = map(list, m)
         # sort regex to be more readable
-        l = map(np.sort, l)
+        m = map(np.sort, m)
         # account for special regex characters
         replace_dict = {
             ".": r"\.",
@@ -222,11 +222,11 @@ class RegExDuper(BaseDuper):
             "|": r"\|",
             "/": r"\/",
         }
-        l = [list(map(lambda c: replace_dict.get(c, c), ll)) for ll in l]
+        m = [list(map(lambda c: replace_dict.get(c, c), mm)) for mm in m]
         # merge lists of characters to regex
-        l = map("".join, l)
-        l = map(lambda x: f"[{x}]", l)
-        return "".join(l)
+        m = map("".join, m)
+        m = map(lambda x: f"[{x}]", m)
+        return "".join(m)
 
     @staticmethod
     def _beautify_regex(regex: str) -> str:

@@ -7,8 +7,15 @@ import numpy as np
 import pandas as pd
 from numpy.typing import ArrayLike
 
-from .methods import (BaseDuper, CategoryDuper, ConstantDuper, DatetimeDuper,
-                      FloatDuper, IntDuper, RegExDuper)
+from .methods import (
+    BaseDuper,
+    CategoryDuper,
+    ConstantDuper,
+    DatetimeDuper,
+    FloatDuper,
+    IntDuper,
+    RegExDuper,
+)
 
 
 def choose_method(data: ArrayLike, category_threshold: float) -> BaseDuper:

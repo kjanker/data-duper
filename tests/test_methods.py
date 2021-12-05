@@ -10,21 +10,22 @@ from duper.methods import BaseDuper, ConstantDuper, DatetimeDuper, RegExDuper
 @pytest.mark.parametrize(
     "test",
     [
-        dict(
-            data=np.datetime64("2021-12-21") + np.random.randint(100, size=10),
-            dtype=np.dtype("<M8[D]"),
-            nan=np.isnat,
-        ),
-        dict(
-            data=np.random.randint(100, size=10),
-            dtype=np.dtype("int64"),
-            nan=np.isnan,
-        ),
-        dict(
-            data=np.random.uniform(size=10),
-            dtype=np.dtype("float64"),
-            nan=np.isnan,
-        ),
+        {
+            "data": np.datetime64("2021-12-21")
+            + np.random.randint(100, size=10),
+            "dtype": np.dtype("<M8[D]"),
+            "nan": np.isnat,
+        },
+        {
+            "data": np.random.randint(100, size=10),
+            "dtype": np.dtype("int"),
+            "nan": np.isnan,
+        },
+        {
+            "data": np.random.uniform(size=10),
+            "dtype": np.dtype("float"),
+            "nan": np.isnan,
+        },
     ],
 )
 def test_BaseDuper_dtype(test):
@@ -75,14 +76,14 @@ def test_ConstantDuper_all_na():
 
 @pytest.fixture(
     params=[
-        dict(start="2012", freq="Y"),
-        dict(start="2012-12", freq="M"),
-        dict(start="2012-12-21", freq="D"),
-        dict(start="2012-12-21T04", freq="h"),
-        dict(start="2012-12-21T04:30", freq="m"),
-        dict(start="2012-12-21T04:30:10", freq="s"),
-        dict(start="2012-12-21T04:30:10.123", freq="ms"),
-        dict(start="2012-12-21T04:30:10.123456", freq="ns"),
+        {"start": "2012", "freq": "Y"},
+        {"start": "2012-12", "freq": "M"},
+        {"start": "2012-12-21", "freq": "D"},
+        {"start": "2012-12-21T04", "freq": "h"},
+        {"start": "2012-12-21T04:30", "freq": "m"},
+        {"start": "2012-12-21T04:30:10", "freq": "s"},
+        {"start": "2012-12-21T04:30:10.123", "freq": "ms"},
+        {"start": "2012-12-21T04:30:10.123456", "freq": "ns"},
     ]
 )
 def datetime_data(request):

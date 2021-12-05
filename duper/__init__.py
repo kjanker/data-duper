@@ -1,1 +1,1 @@
-from .base import Duper
+from .base import Duper  # noqa
