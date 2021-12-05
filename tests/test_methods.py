@@ -88,8 +88,7 @@ def test_ConstantDuper_all_na():
 )
 def datetime_data(request):
     return pd.Series(
-        np.datetime64(request.param["start"])
-        + np.random.randint(100, size=10),
+        np.datetime64(request.param["start"]) + np.random.randint(100, size=10),
         name=request.param["freq"],
     )
 
@@ -107,9 +106,7 @@ def test_DatetimeDuper_freq(datetime_data):
     [
         np.array(
             pd.Series(
-                list(
-                    map("-".join, zip(list("abcdefghij"), list("0123456789")))
-                )
+                list(map("-".join, zip(list("abcdefghij"), list("0123456789"))))
                 + [np.nan]
             )
         ),
