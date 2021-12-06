@@ -164,6 +164,9 @@ class DatetimeDuper(QuantileDuper):
                 self.data = self.data.astype(f"datetime64[{freq}]")
                 self.freq = freq
 
+    def _make(self, n: int) -> NDArray:
+        return super()._make(n=n).astype(f"datetime64[{self.freq}]")
+
 
 class RegExDuper(BaseDuper):
     """Duper class recommended to strings with a repeating defined structure.
