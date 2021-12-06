@@ -107,12 +107,12 @@ def test_DatetimeDuper_freq(datetime_data):
         np.array(
             pd.Series(
                 list(map("-".join, zip(list("abcdefghij"), list("0123456789"))))
-                + [np.nan]
+                + [np.nan]  # type: ignore
             )
         ),
         pd.Series(
             list(map("-".join, zip(list("abcdefghij"), list("0123456789"))))
-            + [np.nan]
+            + [np.nan]  # type: ignore
         ),
     ],
 )

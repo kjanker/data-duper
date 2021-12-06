@@ -5,7 +5,7 @@ Module containing the helper functions for fitting the duper to data.
 """
 import numpy as np
 import pandas as pd
-from numpy.typing import ArrayLike
+from numpy.typing import NDArray
 
 from .methods import (
     BaseDuper,
@@ -18,7 +18,7 @@ from .methods import (
 )
 
 
-def choose_method(data: ArrayLike, category_threshold: float) -> BaseDuper:
+def choose_method(data: NDArray, category_threshold: float) -> BaseDuper:
     """Chooses and returns the best method to replicate the provided data.
 
     Parameters
@@ -65,5 +65,5 @@ def choose_method(data: ArrayLike, category_threshold: float) -> BaseDuper:
     if data.dtype == np.str_ or data.dtype == np.object_:
         if len(set(map(len, unique_values))) == 1:
             return RegExDuper(data=data)
-        else:
-            return CategoryDuper(data=data)
+
+    return CategoryDuper(data=data)

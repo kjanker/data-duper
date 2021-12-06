@@ -5,26 +5,28 @@ Module containing the replication methods for each type of data.
 """
 import numpy as np
 import pandas as pd
-from numpy.typing import ArrayLike, NDArray
+from numpy.typing import NDArray
 
 
 class BaseDuper:
     """Abstract class of the value generators."""
 
-    def __init__(self, data: ArrayLike):
-        self.dtype = data.dtype
-        if self.dtype.name.startswith("datetime"):
-            self.nan = np.datetime64("NaT")
-        else:
-            self.nan = np.nan
+    def __init__(self, data: NDArray) -> None:
+        self.dtype: np.dtype = data.dtype
+        self.na_rate: float = 0.0
+        self.nan = (
+            np.datetime64("NaT")
+            if np.issubdtype(self.dtype, np.datetime64)
+            else np.nan
+        )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__repr__()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
 
-    def _make(n: int):
+    def _make(self, n: int) -> NDArray:
         pass
 
     def make(self, n: int, with_na: bool = False) -> NDArray:
@@ -38,7 +40,7 @@ class BaseDuper:
 class ConstantDuper(BaseDuper):
     """Simplest duper method. Replicates data with a constant value."""
 
-    def __init__(self, value, na_rate: float = 0.0):
+    def __init__(self, value, na_rate: float = 0.0) -> None:
         super().__init__(data=np.array(value))
         self.value = value
         self.na_rate = na_rate
@@ -46,7 +48,7 @@ class ConstantDuper(BaseDuper):
     def __str__(self) -> str:
         return f"{self.__class__.__name__} with value '{self.value}'"
 
-    def _make(self, n: int) -> ArrayLike:
+    def _make(self, n: int) -> NDArray:
         return np.full(shape=n, fill_value=self.value)
 
 
@@ -56,7 +58,7 @@ class CategoryDuper(BaseDuper):
 
     """
 
-    def __init__(self, data: ArrayLike):
+    def __init__(self, data: NDArray) -> None:
         super().__init__(data=data)
         self._choices = pd.value_counts(data, normalize=True, dropna=False)
 
@@ -97,7 +99,7 @@ class QuantileDuper(BaseDuper):
 
     """
 
-    def __init__(self, data: ArrayLike):
+    def __init__(self, data: NDArray) -> None:
         super().__init__(data=data)
         self.data = data[~np.isnan(data)]
         self.na_rate = 1 - len(self.data) / len(data)
@@ -138,7 +140,7 @@ class DatetimeDuper(QuantileDuper):
 
     """
 
-    def __init__(self, data: ArrayLike, freq: str = None):
+    def __init__(self, data: NDArray[np.datetime64], freq: str = None) -> None:
         super().__init__(data=data)
         if freq is None:
             self._set_auto_freq()
@@ -152,7 +154,7 @@ class DatetimeDuper(QuantileDuper):
             f"freq={self.freq}"
         )
 
-    def _set_auto_freq(self):
+    def _set_auto_freq(self) -> None:
         """Derive datetime frequency dtype from data"""
         self.freq = "ns"
         for freq in ["ms", "s", "m", "h", "D", "M", "Y"]:
@@ -170,7 +172,7 @@ class RegExDuper(BaseDuper):
 
     """
 
-    def __init__(self, data: ArrayLike):
+    def __init__(self, data: NDArray[np.str_]) -> None:
         super().__init__(data=data)
         data_clean = data[~pd.isna(data)]
         self.na_rate = 1 - len(data_clean) / len(data)
@@ -185,7 +187,7 @@ class RegExDuper(BaseDuper):
         return np.array([xeger(self.regex) for _ in range(n)])
 
     @staticmethod
-    def _train_regex(data: ArrayLike) -> str:
+    def _train_regex(data: NDArray[np.str_]) -> str:
         """Simple algorithm to derive a regular expression from a set of
         strings. It loops the strings character by character, takes the n-th
         characters of each string and builds a regular expression, allowing
@@ -195,14 +197,18 @@ class RegExDuper(BaseDuper):
         from itertools import zip_longest
 
         # break words in data into list of characters
-        m = map(list, data)
+        char_array = map(list, data)
         # transpose character matrix: sublists hold i-th char of each value
-        m = map(list, zip_longest(*m, fillvalue=""))
-        # reduce list to unique values
-        m = map(set, m)
-        m = map(list, m)
-        # sort regex to be more readable
-        m = map(np.sort, m)
+        char_array_transposed = map(
+            list, zip_longest(*char_array, fillvalue="")
+        )
+        # reduce list to unique values and sort
+        unique_chars = map(
+            np.sort,
+            np.array(
+                list(map(list, map(set, char_array_transposed))), dtype=object
+            ),
+        )
         # account for special regex characters
         replace_dict = {
             ".": r"\.",
@@ -222,11 +228,18 @@ class RegExDuper(BaseDuper):
             "|": r"\|",
             "/": r"\/",
         }
-        m = [list(map(lambda c: replace_dict.get(c, c), mm)) for mm in m]
+        regex = map(
+            lambda x: f"[{x}]",
+            map(
+                "".join,
+                [
+                    map(lambda c: replace_dict.get(c, c), uc)
+                    for uc in unique_chars
+                ],
+            ),
+        )
         # merge lists of characters to regex
-        m = map("".join, m)
-        m = map(lambda x: f"[{x}]", m)
-        return "".join(m)
+        return "".join(regex)
 
     @staticmethod
     def _beautify_regex(regex: str) -> str:

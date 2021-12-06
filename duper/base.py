@@ -16,9 +16,9 @@ class Duper:
     """The main class of data-duper. Use this to fit a data set and dupe it."""
 
     def __init__(self) -> None:
-        self._columns = []
-        self._dtypes = {}
-        self._methods = {}
+        self._columns: List[Hashable] = []
+        self._dtypes: Dict[Hashable, DTypeLike] = {}
+        self._methods: Dict[Hashable, BaseDuper] = {}
 
     def __str__(self) -> str:
         if len(self.methods) > 0:
