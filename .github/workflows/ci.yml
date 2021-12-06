@@ -1,4 +1,4 @@
-name: Tests
+name: CI/CD
 
 on:
   push:
@@ -32,6 +32,10 @@ jobs:
       run: tox
       env:
         TOXENV: black
+    - name: Type checking with mypy
+      run: tox
+      env:
+        TOXENV: mypy
 
 
   test_ubuntu:
