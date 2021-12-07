@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from duper import Duper, methods
+from duper import Duper, generator
 
 
 @pytest.fixture
@@ -27,13 +27,13 @@ def test_duper(df_train, size=100):
 
     assert all(duper.columns == df_train.columns)
     assert duper.dtypes == df_train.dtypes.to_dict()
-    assert list(map(type, duper.methods.values())) == [
-        methods.ConstantDuper,
-        methods.DatetimeDuper,
-        methods.IntDuper,
-        methods.FloatDuper,
-        methods.CategoryDuper,
-        methods.RegExDuper,
+    assert list(map(type, duper.generators.values())) == [
+        generator.Constant,
+        generator.Datetime,
+        generator.Integer,
+        generator.Float,
+        generator.Category,
+        generator.Regex,
     ]
 
     df_dupe = duper.make(size=size)
@@ -53,6 +53,6 @@ def test_NaT_column():
 
     duper = Duper()
     duper.fit(df)
-    duper.methods["nat"].value
-    assert np.isnat(duper.methods["nat"].value)
+    duper.generators["nat"].value
+    assert np.isnat(duper.generators["nat"].value)
     assert all(np.isnat(duper.make(size=10)))

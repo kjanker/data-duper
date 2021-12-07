@@ -1,15 +1,13 @@
 """
-base.py
-====================================
-The core module of my example project.
+The core module of data-duper.
 """
 from typing import Dict, Hashable, List
 
 import pandas as pd
 from numpy.typing import DTypeLike
 
-from .analysis import choose_method
-from .methods import BaseDuper
+from .analysis import choose_generator
+from .generator.base import Generator
 
 
 class Duper:
@@ -18,19 +16,19 @@ class Duper:
     def __init__(self) -> None:
         self._columns: List[Hashable] = []
         self._dtypes: Dict[Hashable, DTypeLike] = {}
-        self._methods: Dict[Hashable, BaseDuper] = {}
+        self._generators: Dict[Hashable, Generator] = {}
 
     def __str__(self) -> str:
-        if len(self.methods) > 0:
+        if len(self.generators) > 0:
             descr = pd.DataFrame(index=self.columns)
             descr["dtypes"] = descr.index.map(
                 {k: v.__str__() for k, v in self.dtypes.items()}
             )
-            descr["methods"] = descr.index.map(
-                {k: v.__repr__() for k, v in self.methods.items()}
+            descr["generators"] = descr.index.map(
+                {k: v.__repr__() for k, v in self.generators.items()}
             )
             return (
-                f"{self.__class__.__name__}, {len(self.methods)} columns:\n"
+                f"{self.__class__.__name__}, {len(self.generators)} columns:\n"
                 f"{descr}"
             )
         else:
@@ -48,8 +46,8 @@ class Duper:
         return self._dtypes
 
     @property
-    def methods(self) -> Dict[Hashable, BaseDuper]:
-        return self._methods
+    def generators(self) -> Dict[Hashable, Generator]:
+        return self._generators
 
     def fit(self, df: pd.DataFrame, category_threshold: float = 0.05) -> None:
         """Fit the data generator on a provided dataset.
@@ -65,9 +63,9 @@ class Duper:
         self._columns = list(df.columns)
         self._dtypes = df.dtypes.to_dict()
 
-        self._methods = {}
+        self._generators = {}
         for col in df.columns:
-            self._methods[col] = choose_method(
+            self._generators[col] = choose_generator(
                 data=df[col], category_threshold=category_threshold
             )
 
@@ -90,9 +88,9 @@ class Duper:
             self.dtypes
         )
 
-        for col in df.columns:
+        for col in self.columns:
             try:
-                df[col] = self.methods[col].make(n=size, with_na=with_na)
+                df[col] = self.generators[col].make(size=size, with_na=with_na)
             except Exception as e:
                 raise Exception(*e.args, f"column='{col}'")
 
