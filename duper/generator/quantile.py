@@ -19,6 +19,10 @@ class QuantileGenerator(Generator):
         self.data = data[~np.isnan(data)]
         self.na_rate = 1 - len(self.data) / len(data)
 
+    @classmethod
+    def from_data(cls, data: NDArray):
+        return cls(data=data)
+
     def __str__(self) -> str:
         return f"{self.__class__.__name__} from empiric quantiles"
 

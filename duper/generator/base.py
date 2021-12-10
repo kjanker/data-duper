@@ -11,20 +11,20 @@ class Generator:
     def __init__(self, data: NDArray) -> None:
         self.dtype: np.dtype = data.dtype
         self.na_rate: float = 0.0
-        self.nan = (
-            np.datetime64("NaT")
-            if np.issubdtype(self.dtype, np.datetime64)
-            else np.nan
-        )
 
-    def __str__(self) -> str:
-        return self.__repr__()
+    @classmethod
+    def from_data(cls, data: NDArray):
+        return cls(data=data)
 
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}()"
+    @property
+    def nan(self):
+        if np.issubdtype(self.dtype, np.datetime64):
+            return np.datetime64("NaT")
+        else:
+            return np.nan
 
     def _make(self, size: int) -> NDArray:
-        pass
+        raise NotImplementedError
 
     def make(self, size: int, with_na: bool = False) -> NDArray:
         data = self._make(size=size).astype(self.dtype)

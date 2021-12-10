@@ -18,6 +18,10 @@ class Category(Generator):
         super().__init__(data=data)
         self._choices = pd.value_counts(data, normalize=True, dropna=False)
 
+    @classmethod
+    def from_data(cls, data: NDArray):
+        return cls(data=data)
+
     def __str__(self) -> str:
         catagories_str = self.categories(with_na=True).to_string(
             header=False,

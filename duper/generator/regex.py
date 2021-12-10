@@ -21,6 +21,10 @@ class Regex(Generator):
         self.na_rate = 1 - len(data_clean) / len(data)
         self.regex = self._beautify_regex(self._train_regex(data_clean))
 
+    @classmethod
+    def from_data(cls, data: NDArray):
+        return cls(data=data)
+
     def __str__(self) -> str:
         return f"{self.__class__.__name__} with '{self.regex}'>"
 

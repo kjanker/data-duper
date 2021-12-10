@@ -1,6 +1,8 @@
 """
 Module containing the helper functions for fitting the duper to data.
 """
+from typing import Type
+
 import numpy as np
 import pandas as pd
 from numpy.typing import NDArray
@@ -9,12 +11,20 @@ from . import generator
 from .generator.base import Generator
 
 
-def choose_generator(data: NDArray, category_threshold: float) -> Generator:
-    """Chooses and returns the best generator to replicate the provided data.
+def fit_generator(data: NDArray, category_threshold: float) -> Generator:
+    return find_best_generator(
+        data=data, category_threshold=category_threshold
+    ).from_data(data)
+
+
+def find_best_generator(
+    data: NDArray, category_threshold: float
+) -> Type[Generator]:
+    """Finds the best generator class to replicate the provided data.
 
     Parameters
     ---------
-    data: ArrayLike
+    data: NDArray
         training dataset with realistic data.
     category_threshold: float
         Fraction of unique values until which category generator is perferred,
@@ -22,39 +32,39 @@ def choose_generator(data: NDArray, category_threshold: float) -> Generator:
 
     Returns
     ---------
-    Generator
-        the chosen generator to replicate the provided data
+    Type[Generator]
+        the best generator class to replicate the provided data
     """
-    if len(data) == 0:
-        return generator.Constant(value=np.nan, na_rate=1.0)
+    validate(data=data)
 
-    if all(pd.isna(data)):
-        return generator.Constant(value=pd.unique(data), na_rate=1.0)
+    unique_values = pd.unique(data)
+    unique_values = unique_values[~pd.isna(unique_values)]
 
-    value_counts = pd.value_counts(data, dropna=False)
-    unique_values = value_counts.index[~value_counts.index.isna()]
-
-    if len(unique_values) == 1:
-        na_rate = value_counts.get(np.nan, 0) / len(data)
-        return generator.Constant(value=unique_values[0], na_rate=na_rate)
+    if len(unique_values) <= 1:
+        return generator.Constant
 
     if (
         data.dtype == np.bool_
         or len(unique_values) / len(data) < category_threshold
     ):
-        return generator.Category(data=data)
+        return generator.Category
 
     if data.dtype == np.float_:
-        return generator.Float(data=data)
+        return generator.Float
 
     if data.dtype == np.int_:
-        return generator.Integer(data=data)
+        return generator.Integer
 
     if np.issubdtype(data.dtype, np.datetime64):
-        return generator.Datetime(data=data)
+        return generator.Datetime
 
     if data.dtype == np.str_ or data.dtype == np.object_:
         if len(set(map(len, unique_values))) == 1:
-            return generator.Regex(data=data)
+            return generator.Regex
 
-    return generator.Category(data=data)
+    return generator.Category
+
+
+def validate(data: NDArray) -> None:
+    if len(data) == 0:
+        raise ValueError("Data cannot be of length zero")

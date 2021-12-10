@@ -6,7 +6,7 @@ from typing import Dict, Hashable, List
 import pandas as pd
 from numpy.typing import DTypeLike
 
-from .analysis import choose_generator
+from . import analysis
 from .generator.base import Generator
 
 
@@ -65,7 +65,7 @@ class Duper:
 
         self._generators = {}
         for col in df.columns:
-            self._generators[col] = choose_generator(
+            self._generators[col] = analysis.fit_generator(
                 data=df[col], category_threshold=category_threshold
             )
 
