@@ -15,7 +15,6 @@ class Duper:
 
     def __init__(self) -> None:
         self._columns: List[Hashable] = []
-        self._dtypes: Dict[Hashable, DTypeLike] = {}
         self._generators: Dict[Hashable, Generator] = {}
 
     def __str__(self) -> str:
@@ -43,7 +42,7 @@ class Duper:
 
     @property
     def dtypes(self) -> Dict[Hashable, DTypeLike]:
-        return self._dtypes
+        return {k: v.dtype for k, v in self.generators.items()}
 
     @property
     def generators(self) -> Dict[Hashable, Generator]:
@@ -61,7 +60,6 @@ class Duper:
             should be in [0,1].
         """
         self._columns = list(df.columns)
-        self._dtypes = df.dtypes.to_dict()
 
         self._generators = {}
         for col in df.columns:
