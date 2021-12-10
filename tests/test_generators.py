@@ -35,7 +35,7 @@ def test_Generator_dtype(test):
     assert test["nan"](duper.nan)
 
 
-# ConstantDuper
+# Constant generator
 
 
 def test_ConstantGenerator_size():
@@ -72,7 +72,20 @@ def test_ConstantGenerator_all_na():
     assert any(duped_values == value)
 
 
-# DatetimeGenerator
+def test_ConstantGenerator_from_data():
+    data = np.array([1, 1, 1, np.nan])
+    duper = generator.Constant.from_data(data)
+    assert duper.dtype == data.dtype
+    assert duper.na_rate == 0.25
+
+
+def test_ConstantGenerator_fail_infer():
+    data = np.array([1, 1, 2, np.nan])
+    with pytest.raises(ValueError):
+        generator.Constant.from_data(data)
+
+
+# Datetime generator
 
 
 @pytest.fixture(
@@ -99,7 +112,7 @@ def test_DatetimeGenerator_freq(datetime_data):
     assert duper.freq == datetime_data.name
 
 
-# RegexGenerator
+# Regex generator
 
 
 @pytest.mark.parametrize(
