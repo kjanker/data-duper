@@ -14,7 +14,6 @@ class Duper:
     """The main class of data-duper. Use this to fit a data set and dupe it."""
 
     def __init__(self) -> None:
-        self._columns: List[Hashable] = []
         self._generators: Dict[Hashable, Generator] = {}
 
     def __str__(self) -> str:
@@ -37,16 +36,16 @@ class Duper:
         return f"{self.__class__.__name__}"
 
     @property
+    def generators(self) -> Dict[Hashable, Generator]:
+        return self._generators
+
+    @property
     def columns(self) -> List[Hashable]:
-        return self._columns
+        return list(self.generators.keys())
 
     @property
     def dtypes(self) -> Dict[Hashable, DTypeLike]:
         return {k: v.dtype for k, v in self.generators.items()}
-
-    @property
-    def generators(self) -> Dict[Hashable, Generator]:
-        return self._generators
 
     def fit(self, df: pd.DataFrame, category_threshold: float = 0.05) -> None:
         """Fit the data generator on a provided dataset.
@@ -59,8 +58,6 @@ class Duper:
             Fraction of unique values until which category duper is perferred,
             should be in [0,1].
         """
-        self._columns = list(df.columns)
-
         self._generators = {}
         for col in df.columns:
             self._generators[col] = analysis.fit_generator(
