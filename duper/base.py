@@ -16,6 +16,15 @@ class Duper:
     def __init__(self) -> None:
         self._generators: Dict[Hashable, Generator] = {}
 
+    def __getitem__(self, item: Hashable):
+        return self.generators[item]
+
+    def __setitem__(self, item: Hashable, value: Generator):
+        if isinstance(value, Generator):
+            self.generators[item] = value
+        else:
+            raise TypeError(f"value should be an instance of {Generator}")
+
     def __str__(self) -> str:
         if len(self.generators) > 0:
             descr = pd.DataFrame(index=self.columns)
