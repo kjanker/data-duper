@@ -30,5 +30,8 @@ class Generator:
         data = self._make(size=size).astype(self.dtype)
         if with_na:
             isna = np.random.uniform(size=size) < self.na_rate
-            data[isna] = self.nan
+            if any(isna):
+                if np.issubdtype(self.dtype, np.int_):
+                    data = data.astype(np.float_)
+                data[isna] = self.nan
         return data
