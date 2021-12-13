@@ -35,7 +35,7 @@ def find_best_generator(
     Type[Generator]
         the best generator class to replicate the provided data
     """
-    validate(data=data)
+    Generator.validate(data=data)
 
     unique_values = pd.unique(data)
     unique_values = unique_values[~pd.isna(unique_values)]
@@ -63,8 +63,3 @@ def find_best_generator(
             return generator.Regex
 
     return generator.Category
-
-
-def validate(data: NDArray) -> None:
-    if len(data) == 0:
-        raise ValueError("Data cannot be of length zero")

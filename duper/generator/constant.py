@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 from numpy.typing import NDArray
 
-from .. import analysis
 from .base import Generator
 
 
@@ -21,7 +20,7 @@ class Constant(Generator):
     def from_data(cls, data: NDArray):
         """Init class from data set."""
 
-        analysis.validate(data=data)
+        Generator.validate(data=data)
         dtype = data.dtype
         # using pandas isna here since dtype might be object/string
         na_rate = sum(pd.isna(data)) / len(data)

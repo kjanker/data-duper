@@ -35,3 +35,8 @@ class Generator:
                     data = data.astype(np.float_)
                 data[isna] = self.nan
         return data
+
+    @staticmethod
+    def validate(data: NDArray) -> None:
+        if len(data) == 0:
+            raise ValueError("Data cannot be of length zero")
