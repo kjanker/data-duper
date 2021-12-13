@@ -1,8 +1,12 @@
 """
 A generator for string data that follow a fixed structure like IDs.
 """
+import itertools
+import re
+
 import numpy as np
 import pandas as pd
+import rstr
 from numpy.typing import NDArray
 
 from .base import Generator
@@ -29,9 +33,7 @@ class Regex(Generator):
         return f"{self.__class__.__name__} with '{self.regex}'>"
 
     def _make(self, size: int) -> NDArray:
-        from rstr import xeger
-
-        return np.array([xeger(self.regex) for _ in range(size)])
+        return np.array([rstr.xeger(self.regex) for _ in range(size)])
 
     @staticmethod
     def _train_regex(data: NDArray[np.str_]) -> str:
@@ -41,13 +43,11 @@ class Regex(Generator):
         only those characters at this position.
 
         """
-        from itertools import zip_longest
-
         # break words in data into list of characters
         char_array = map(list, data)
         # transpose character matrix: sublists hold i-th char of each value
         char_array_transposed = map(
-            list, zip_longest(*char_array, fillvalue="")
+            list, itertools.zip_longest(*char_array, fillvalue="")
         )
         # reduce list to unique values and sort
         unique_chars = map(
@@ -90,8 +90,6 @@ class Regex(Generator):
 
     @staticmethod
     def _beautify_regex(regex: str) -> str:
-        from re import sub
-
         for chars in [
             range(ord("0"), ord("9") - 1),
             range(ord("a"), ord("z") - 1),
@@ -105,4 +103,4 @@ class Regex(Generator):
                     find_str = "-" + chr(i + 2) + chr(i + 3)
                     replace_str = "-" + chr(i + 3)
                     regex = regex.replace(find_str, replace_str)
-        return sub(r"\-[a-zA-Z0-9]\-", "-", regex)
+        return re.sub(r"\-[a-zA-Z0-9]\-", "-", regex)
