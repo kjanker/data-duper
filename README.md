@@ -4,7 +4,7 @@ data-duper is a tool to replicate the structure of private or protected data for
 
 [![GitHub license](https://img.shields.io/github/license/kjanker/data-duper.svg)](https://github.com/kjanker/data-duper/blob/main/LICENSE)
 [![CI/CD](https://github.com/kjanker/test_repo/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/kjanker/test_repo/actions/workflows/ci.yml)
-[![Python: ≥3.7](https://img.shields.io/badge/%20Python-≥3.7-%23FFD43B?style=flat&labelColor=4B8BBE&logo=python&logoColor=FFD43B)](https://www.python.org/)
+[![Python: ≥3.8](https://img.shields.io/badge/%20Python-≥3.8-%23FFD43B?style=flat&labelColor=4B8BBE&logo=python&logoColor=FFD43B)](https://www.python.org/)
 [![Code style: black](https://img.shields.io/badge/Code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20Imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 
