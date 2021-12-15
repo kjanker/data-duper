@@ -30,7 +30,7 @@ from duper.generator.base import Generator
     ],
 )
 def test_Generator_dtype(test):
-    duper = Generator(data=test["data"])
+    duper = Generator.from_data(data=test["data"])
     assert duper.dtype == test["dtype"]
     assert test["nan"](duper.nan)
 
@@ -108,7 +108,7 @@ def datetime_data(request):
 
 
 def test_DatetimeGenerator_freq(datetime_data):
-    duper = generator.Datetime(data=datetime_data)
+    duper = generator.Datetime.from_data(data=datetime_data)
     assert duper.freq == datetime_data.name
 
 
@@ -130,5 +130,5 @@ def test_DatetimeGenerator_freq(datetime_data):
     ],
 )
 def test_RegexGenerator_regex(regex_data):
-    duper = generator.Regex(data=regex_data)
+    duper = generator.Regex.from_data(data=regex_data)
     assert duper.regex == r"[a-j][\-][0-9]"
