@@ -92,12 +92,7 @@ class Datetime(QuantileGenerator):
     ) -> None:
         super().__init__(bins, vals, dtype, na_rate)
 
-        self.freq = "ns"
-        for freq in ["ms", "s", "m", "h", "D", "M", "Y"]:
-            if any(vals != vals.astype(f"datetime64[{freq}]")):
-                break
-            else:
-                self.freq = freq
+        self.freq = helper.datetime_precision(self.vals)
 
     def __str__(self) -> str:
         return (
