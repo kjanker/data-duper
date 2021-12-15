@@ -4,6 +4,7 @@ Generators for numeric data that can be inferred from empiric distribution.
 import numpy as np
 from numpy.typing import NDArray
 
+from .. import helper
 from .base import Generator
 
 
@@ -68,8 +69,15 @@ class Integer(QuantileGenerator):
 
     """
 
+    def __init__(
+        self, bins: NDArray, vals: NDArray, dtype=None, na_rate: float = 0.0
+    ) -> None:
+        super().__init__(bins, vals, dtype, na_rate)
+
+        self.gcd = np.gcd.reduce(self.vals)
+
     def _make(self, size: int) -> NDArray:
-        return super()._make(size=size).round()
+        return helper.roundx(super()._make(size=size), x=self.gcd)
 
 
 class Datetime(QuantileGenerator):
