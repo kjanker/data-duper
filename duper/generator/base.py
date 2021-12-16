@@ -2,7 +2,7 @@
 Module containing the abstract base class for all generators.
 """
 import numpy as np
-from numpy.typing import NDArray
+from numpy.typing import ArrayLike, NDArray
 
 
 class Generator:
@@ -37,6 +37,14 @@ class Generator:
         return data
 
     @staticmethod
-    def validate(data: NDArray) -> None:
-        if len(data) == 0:
-            raise ValueError("Data cannot be of length zero")
+    def validate(data: ArrayLike, dtype=None) -> NDArray:
+
+        adata = np.asarray(data)
+
+        if adata.size == 0:
+            raise ValueError("data must not be empty")
+
+        if dtype and not np.issubdtype(adata.dtype, dtype):
+            raise TypeError(f"data elements must be subdtypes of {dtype}")
+
+        return adata
