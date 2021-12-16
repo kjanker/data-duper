@@ -21,9 +21,19 @@ class QuantileGenerator(Generator):
     def __init__(
         self, bins: NDArray, vals: NDArray, dtype=None, na_rate: float = 0.0
     ) -> None:
-        self.bins = bins
-        self.vals = vals
-        self.dtype = dtype if dtype else vals.dtype
+
+        self.bins = np.asarray(bins)
+        self.vals = np.asarray(vals, dtype=dtype)
+
+        if self.bins.shape != self.vals.shape:
+            raise ValueError("x and y do not have the same shape")
+        if len(self.bins.shape) != 1:
+            raise ValueError("x and y must be 1-dimensional")
+
+        self.dtype = dtype or self.vals.dtype
+
+        if na_rate < 0 or na_rate > 1:
+            raise ValueError("na_rate must be in [0,1]")
         self.na_rate = na_rate
 
     @classmethod
