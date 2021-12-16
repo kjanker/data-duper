@@ -2,7 +2,7 @@
 Generators for numeric data that can be inferred from empiric distribution.
 """
 import numpy as np
-from numpy.typing import NDArray
+from numpy.typing import ArrayLike, NDArray
 
 from .. import helper
 from .base import Generator
@@ -19,47 +19,79 @@ class QuantileGenerator(Generator):
     """
 
     def __init__(
-        self, bins: NDArray, vals: NDArray, dtype=None, na_rate: float = 0.0
+        self,
+        vals: ArrayLike,
+        bins: ArrayLike = None,
+        dtype=None,
+        na_rate: float = 0.0,
     ) -> None:
 
-        self.bins = np.asarray(bins)
-        self.vals = np.asarray(vals, dtype=dtype)
+        _vals = np.sort(np.asarray(vals, dtype=dtype))
+        if len(_vals.shape) != 1:
+            raise ValueError("vals must be 1-dimensional")
+        _n = _vals.size
+        if _n < 2:
+            raise ValueError("vals must have at least two valid elements")
+        _bins = np.linspace(0, 1, _n) if bins is None else np.asarray(bins)
+        if _bins.shape != _vals.shape:
+            raise ValueError("vals and bins do not have the same shape")
 
-        if self.bins.shape != self.vals.shape:
-            raise ValueError("x and y do not have the same shape")
-        if len(self.bins.shape) != 1:
-            raise ValueError("x and y must be 1-dimensional")
+        _mask = np.r_[True, _vals[2:] - _vals[:-2] != np.full(_n - 2, 0), True]
 
-        self.dtype = dtype or self.vals.dtype
+        self.vals = _vals[_mask]
+        self.bins = _bins[_mask]
+        self.dtype = dtype or _vals.dtype
 
         if na_rate < 0 or na_rate > 1:
             raise ValueError("na_rate must be in [0,1]")
         self.na_rate = na_rate
 
     @classmethod
-    def from_data(cls, data: NDArray):
-
-        Generator.validate(data=data)
-        dtype = data.dtype
-        na_rate = sum(np.isnan(data)) / len(data)
-
-        vals = np.sort(data[~np.isnan(data)])
-        n = len(vals)
-        bins = np.linspace(0, 1, n)
-        mask = np.r_[False, vals[2:] - vals[:-2] == np.full(n - 2, 0), False]
-        return cls(
-            bins=bins[~mask], vals=vals[~mask], dtype=dtype, na_rate=na_rate
-        )
+    def from_data(cls, data: ArrayLike):
+        _data = np.asarray(data)
+        vals = np.asarray(_data[~np.isnan(_data)])
+        dtype = _data.dtype
+        na_rate = 1 - vals.size / _data.size
+        return cls(vals=vals, dtype=dtype, na_rate=na_rate)
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__} from empiric quantiles"
 
     def _make(self, size: int) -> NDArray:
         p = np.random.uniform(0, 1, size)
-        i = np.searchsorted(self.bins, p)
-        return (p - self.bins[i - 1]) / (self.bins[i] - self.bins[i - 1]) * (
-            self.vals[i] - self.vals[i - 1]
-        ) + self.vals[i - 1]
+        return helper.interp(p, self.bins, self.vals).astype(self.dtype)
+
+
+class Numeric(QuantileGenerator):
+    """Generator class recommended to replicate continous float data.
+
+    This is directly based on the meta QuantileGenerator class.
+
+    """
+
+    def __init__(
+        self,
+        vals: ArrayLike,
+        bins: ArrayLike = None,
+        dtype=None,
+        na_rate: float = 0.0,
+    ) -> None:
+        super().__init__(vals, bins, dtype, na_rate)
+
+        self.gcd = self.dtype.type(helper.gcd_float(self.vals))
+
+    @classmethod
+    def from_data(cls, data: ArrayLike):
+        _data = np.asarray(data)
+        if not (
+            np.issubdtype(_data.dtype, np.floating)
+            or np.issubdtype(_data.dtype, np.integer)
+        ):
+            raise TypeError("data elements must be of numerical dtype")
+        return super().from_data(data=_data)
+
+    def _make(self, size: int) -> NDArray:
+        return helper.roundx(super()._make(size=size), x=self.gcd)
 
 
 class Float(QuantileGenerator):
@@ -70,11 +102,22 @@ class Float(QuantileGenerator):
     """
 
     def __init__(
-        self, bins: NDArray, vals: NDArray, dtype=None, na_rate: float = 0.0
+        self,
+        vals: ArrayLike,
+        bins: ArrayLike = None,
+        dtype=None,
+        na_rate: float = 0.0,
     ) -> None:
-        super().__init__(bins, vals, dtype, na_rate)
+        super().__init__(vals, bins, dtype, na_rate)
 
         self.gcd = helper.gcd_float(self.vals)
+
+    @classmethod
+    def from_data(cls, data: ArrayLike):
+        _data = np.asarray(data)
+        if not np.issubdtype(_data.dtype, np.floating):
+            raise TypeError("data elements must be of floating dtype")
+        return super().from_data(data=_data)
 
     def _make(self, size: int) -> NDArray:
         return helper.roundx(super()._make(size=size), x=self.gcd)
@@ -88,11 +131,22 @@ class Integer(QuantileGenerator):
     """
 
     def __init__(
-        self, bins: NDArray, vals: NDArray, dtype=None, na_rate: float = 0.0
+        self,
+        vals: ArrayLike,
+        bins: ArrayLike = None,
+        dtype=None,
+        na_rate: float = 0.0,
     ) -> None:
-        super().__init__(bins, vals, dtype, na_rate)
+        super().__init__(vals, bins, dtype, na_rate)
 
         self.gcd = np.gcd.reduce(self.vals)
+
+    @classmethod
+    def from_data(cls, data: ArrayLike):
+        _data = np.asarray(data)
+        if not np.issubdtype(_data.dtype, np.integer):
+            raise TypeError("data elements must be of integer dtype")
+        return super().from_data(data=_data)
 
     def _make(self, size: int) -> NDArray:
         return helper.roundx(super()._make(size=size), x=self.gcd)
@@ -106,11 +160,22 @@ class Datetime(QuantileGenerator):
     """
 
     def __init__(
-        self, bins: NDArray, vals: NDArray, dtype=None, na_rate: float = 0.0
+        self,
+        vals: ArrayLike,
+        bins: ArrayLike = None,
+        dtype=None,
+        na_rate: float = 0.0,
     ) -> None:
-        super().__init__(bins, vals, dtype, na_rate)
+        super().__init__(vals, bins, dtype, na_rate)
 
         self.freq = helper.datetime_precision(self.vals)
+
+    @classmethod
+    def from_data(cls, data: ArrayLike):
+        _data = np.asarray(data)
+        if not np.issubdtype(_data.dtype, np.datetime64):
+            raise TypeError("data elements must be of datetime dtype")
+        return super().from_data(data=_data)
 
     def __str__(self) -> str:
         return (
