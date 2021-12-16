@@ -17,7 +17,8 @@ def number_precision(a: ArrayLike, max: int = 16) -> int:
 
     This can be used to count decimals of floats.
     """
-    d = -int(np.ceil(np.log10(np.amax(a))))
+    a = np.asarray(a)[~np.isnan(np.asarray(a))]
+    d = -int(np.ceil(np.log10(np.abs(np.amax(a)))))
     while any(a != np.around(a, d)) and d < max:
         d += 1
     return d
@@ -43,3 +44,16 @@ def datetime_precision(a: NDArray) -> str:
         else:
             freq = f
     return freq
+
+
+def interp(x: ArrayLike, xp: ArrayLike, fp: ArrayLike) -> NDArray:
+    """
+    One-dimensional linear interpolation for monotonically increasing points.
+
+    Note: numpy.interp does not work with datetime values.
+    """
+    # TODO: add checks and exceptions
+    i = np.searchsorted(xp, x)
+    return np.asarray(
+        (x - xp[i - 1]) / (xp[i] - xp[i - 1]) * (fp[i] - fp[i - 1]) + fp[i - 1]
+    )
