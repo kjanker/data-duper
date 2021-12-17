@@ -87,8 +87,8 @@ class Numeric(QuantileGenerator):
     def from_data(cls, data: ArrayLike):
         _data = np.asarray(data)
         if not (
-            np.issubdtype(_data.dtype, np.floating)
-            or np.issubdtype(_data.dtype, np.integer)
+            np.issubdtype(_data.dtype, np.float_)
+            or np.issubdtype(_data.dtype, np.int_)
         ):
             raise TypeError("data elements must be of numerical dtype")
         return super().from_data(data=_data)
@@ -118,7 +118,7 @@ class Float(QuantileGenerator):
     @classmethod
     def from_data(cls, data: ArrayLike):
         _data = np.asarray(data)
-        if not np.issubdtype(_data.dtype, np.floating):
+        if not np.issubdtype(_data.dtype, np.float_):
             raise TypeError("data elements must be of floating dtype")
         return super().from_data(data=_data)
 
@@ -147,7 +147,7 @@ class Integer(QuantileGenerator):
     @classmethod
     def from_data(cls, data: ArrayLike):
         _data = np.asarray(data)
-        if not np.issubdtype(_data.dtype, np.integer):
+        if not np.issubdtype(_data.dtype, np.int_):
             raise TypeError("data elements must be of integer dtype")
         return super().from_data(data=_data)
 
