@@ -50,6 +50,8 @@ class QuantileGenerator(Generator):
     @classmethod
     def from_data(cls, data: ArrayLike):
         _data = np.asarray(data)
+        if _data.size == 0:
+            raise ValueError("data must not be empty")
         vals = np.asarray(_data[~np.isnan(_data)])
         dtype = _data.dtype
         na_rate = 1 - vals.size / _data.size
