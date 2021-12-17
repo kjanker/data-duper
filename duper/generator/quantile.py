@@ -81,7 +81,7 @@ class Numeric(QuantileGenerator):
     ) -> None:
         super().__init__(vals, bins, dtype, na_rate)
 
-        self.gcd = self.dtype.type(helper.gcd_float(self.vals))
+        self.gcd = helper.gcd(self.vals)
 
     @classmethod
     def from_data(cls, data: ArrayLike):
@@ -115,7 +115,7 @@ class Float(QuantileGenerator):
     ) -> None:
         super().__init__(vals, bins, dtype, na_rate)
 
-        self.gcd = helper.gcd_float(self.vals)
+        self.gcd = helper.gcd(self.vals)
 
     @classmethod
     def from_data(cls, data: ArrayLike):
