@@ -26,7 +26,7 @@ class QuantileGenerator(Generator):
         na_rate: float = 0.0,
     ) -> None:
 
-        _vals = np.sort(np.asarray(vals, dtype=dtype))
+        _vals = np.asarray(vals, dtype=dtype)
         if len(_vals.shape) != 1:
             raise ValueError("vals must be 1-dimensional")
         _n = _vals.size
@@ -36,6 +36,7 @@ class QuantileGenerator(Generator):
         if _bins.shape != _vals.shape:
             raise ValueError("vals and bins do not have the same shape")
 
+        _vals = np.sort(_vals)
         _mask = np.r_[True, _vals[2:] - _vals[:-2] != np.full(_n - 2, 0), True]
 
         self.vals = _vals[_mask]
