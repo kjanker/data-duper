@@ -8,6 +8,7 @@ def roundx(a: ArrayLike, x: Union[int, float] = 1) -> NDArray:
     """
     Rounds values to the closest multiple of x.
     """
+    a = np.asarray(a)
     return np.around(x * np.around(a / x), number_precision((x,)))
 
 
@@ -28,15 +29,17 @@ def gcd_float(a: ArrayLike) -> float:
     """
     A float generalisation of the greatest common divisor.
     """
+    a = np.asarray(a)
     n = number_precision(a)
     int_repr = np.around(a * (10 ** n)).astype(np.int_)
     return np.around(np.gcd.reduce(int_repr) / (10 ** n), decimals=n)
 
 
-def datetime_precision(a: NDArray) -> str:
+def datetime_precision(a: ArrayLike) -> str:
     """
     Returns the highest datetime precision present in the data.
     """
+    a = np.asarray(a)
     freq = "ns"
     for f in ["ms", "s", "m", "h", "D", "M", "Y"]:
         if any(a != a.astype(f"datetime64[{f}]")):
@@ -52,6 +55,9 @@ def interp(x: ArrayLike, xp: ArrayLike, fp: ArrayLike) -> NDArray:
 
     Note: numpy.interp does not work with datetime values.
     """
+    x = np.asarray(x)
+    xp = np.asarray(xp)
+    fp = np.asarray(fp)
     # TODO: add checks and exceptions
     i = np.searchsorted(xp, x)
     return np.asarray(
