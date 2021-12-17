@@ -85,6 +85,61 @@ def test_ConstantGenerator_fail_infer():
         generator.Constant.from_data(data)
 
 
+# Numeric generator
+
+
+def test_NumericGenerator_int():
+    data = [2, 2, 2, 4, 6, 8]
+    gen = generator.Numeric.from_data(data=data)
+
+    exp_vals = np.array([2, 2, 4, 6, 8], dtype=np.int_)
+    exp_bins = np.array([0.0, 0.4, 0.6, 0.8, 1.0], dtype=np.float_)
+
+    assert gen.gcd == 2
+    assert gen.dtype == np.int_
+    assert gen.na_rate == 0.0
+    assert all(np.equal(gen.vals, exp_vals))
+    assert all(np.isclose(gen.bins, exp_bins))
+
+
+def test_NumericGenerator_float():
+    data = [0.2, 0.2, 0.2, 0.4, 0.6, 0.8, np.nan]
+    gen = generator.Numeric.from_data(data=data)
+
+    exp_vals = np.array([0.2, 0.2, 0.4, 0.6, 0.8], dtype=np.float_)
+    exp_bins = np.array([0.0, 0.4, 0.6, 0.8, 1.0], dtype=np.float_)
+
+    assert gen.gcd == 0.2
+    assert gen.dtype == np.float_
+    assert np.isclose(gen.na_rate, 1 / 7)
+    assert all(np.isclose(gen.vals, exp_vals))
+    assert all(np.isclose(gen.bins, exp_bins))
+
+
+def test_NumericGenerator_errors():
+
+    with pytest.raises(ValueError):
+        generator.Numeric(vals=3)
+
+    with pytest.raises(ValueError):
+        generator.Numeric(vals=[2])
+
+    with pytest.raises(ValueError):
+        generator.Numeric(vals=[2, 4], bins=[0, 2, 5])
+
+    with pytest.raises(ValueError):
+        generator.Numeric(vals=[2, 4], na_rate=1.5)
+
+    with pytest.raises(TypeError):
+        generator.Numeric.from_data(data=np.array([], dtype=np.datetime64))
+
+    with pytest.raises(TypeError):
+        generator.Numeric.from_data(data=np.array([], dtype=np.object_))
+
+    with pytest.raises(ValueError):
+        generator.Numeric.from_data(data=np.array([], dtype=np.int_))
+
+
 # Datetime generator
 
 
