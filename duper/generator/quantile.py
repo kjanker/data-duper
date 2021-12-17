@@ -98,7 +98,9 @@ class Numeric(QuantileGenerator):
 
 
 class Float(QuantileGenerator):
-    """Generator class recommended to replicate continous float data.
+    """DEPRECATED - Use Numeric instead
+
+    Generator class recommended to replicate continous float data.
 
     This is directly based on the meta QuantileGenerator class.
 
@@ -127,7 +129,9 @@ class Float(QuantileGenerator):
 
 
 class Integer(QuantileGenerator):
-    """Generator class recommended to replicate integer data.
+    """DEPRECATED - Use Numeric instead
+
+    Generator class recommended to replicate integer data.
 
     This is based on the meta QuantileGenerator class.
 

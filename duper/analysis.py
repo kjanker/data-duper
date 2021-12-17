@@ -49,11 +49,10 @@ def find_best_generator(
     ):
         return generator.Category
 
-    if data.dtype == np.float_:
-        return generator.Float
-
-    if data.dtype == np.int_:
-        return generator.Integer
+    if np.issubdtype(data.dtype, np.float_) or np.issubdtype(
+        data.dtype, np.int_
+    ):
+        return generator.Numeric
 
     if np.issubdtype(data.dtype, np.datetime64):
         return generator.Datetime

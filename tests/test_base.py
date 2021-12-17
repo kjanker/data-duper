@@ -30,8 +30,8 @@ def test_duper(df_train, size=100):
     assert list(map(type, duper.generators.values())) == [
         generator.Constant,
         generator.Datetime,
-        generator.Integer,
-        generator.Float,
+        generator.Numeric,
+        generator.Numeric,
         generator.Category,
         generator.Regex,
     ]
