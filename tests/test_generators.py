@@ -95,7 +95,7 @@ def test_NumericGenerator_int():
     exp_vals = np.array([2, 2, 4, 6, 8], dtype=np.int_)
     exp_bins = np.array([0.0, 0.4, 0.6, 0.8, 1.0], dtype=np.float_)
 
-    assert gen.gcd == 2
+    assert gen.precision == 2
     assert gen.dtype == np.int_
     assert gen.na_rate == 0.0
     assert all(np.equal(gen.vals, exp_vals))
@@ -109,7 +109,7 @@ def test_NumericGenerator_float():
     exp_vals = np.array([0.2, 0.2, 0.4, 0.6, 0.8], dtype=np.float_)
     exp_bins = np.array([0.0, 0.4, 0.6, 0.8, 1.0], dtype=np.float_)
 
-    assert gen.gcd == 0.2
+    assert gen.precision == 0.2
     assert gen.dtype == np.float_
     assert np.isclose(gen.na_rate, 1 / 7)
     assert all(np.isclose(gen.vals, exp_vals))
@@ -149,26 +149,26 @@ def test_NumericGenerator_errors():
 
 @pytest.fixture(
     params=[
-        {"start": "2012", "freq": "Y"},
-        {"start": "2012-12", "freq": "M"},
-        {"start": "2012-12-21", "freq": "D"},
-        {"start": "2012-12-21T04", "freq": "h"},
-        {"start": "2012-12-21T04:30", "freq": "m"},
-        {"start": "2012-12-21T04:30:10", "freq": "s"},
-        {"start": "2012-12-21T04:30:10.123", "freq": "ms"},
-        {"start": "2012-12-21T04:30:10.123456", "freq": "ns"},
+        {"start": "2012", "precision": "Y"},
+        {"start": "2012-12", "precision": "M"},
+        {"start": "2012-12-21", "precision": "D"},
+        {"start": "2012-12-21T04", "precision": "h"},
+        {"start": "2012-12-21T04:30", "precision": "m"},
+        {"start": "2012-12-21T04:30:10", "precision": "s"},
+        {"start": "2012-12-21T04:30:10.123", "precision": "ms"},
+        {"start": "2012-12-21T04:30:10.123456", "precision": "ns"},
     ]
 )
 def datetime_data(request):
     return pd.Series(
         np.datetime64(request.param["start"]) + np.random.randint(100, size=10),
-        name=request.param["freq"],
+        name=request.param["precision"],
     )
 
 
-def test_DatetimeGenerator_freq(datetime_data):
+def test_DatetimeGenerator_precision(datetime_data):
     duper = generator.Datetime.from_data(data=datetime_data)
-    assert duper.freq == datetime_data.name
+    assert duper.precision == datetime_data.name
 
 
 # Regex generator

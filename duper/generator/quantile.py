@@ -100,7 +100,7 @@ class Numeric(QuantileGenerator):
     DATA_DTYPES = [np.int_, np.float_]
 
     @property
-    def gcd(self) -> Union[int, float]:
+    def precision(self) -> Union[int, float]:
         """Union[int, float]: Precision of the generator, interpreted as the
         greatest common divisor."""
         return helper.gcd(self.vals)
@@ -115,7 +115,7 @@ class Numeric(QuantileGenerator):
         Returns:
             NDArray: numeric array rounded to the generators precision
         """
-        return helper.roundx(super()._make(size=size), x=self.gcd)
+        return helper.roundx(super()._make(size=size), x=self.precision)
 
 
 class Datetime(QuantileGenerator):
@@ -131,7 +131,7 @@ class Datetime(QuantileGenerator):
     DATA_DTYPES = [np.datetime64]
 
     @property
-    def freq(self) -> str:
+    def precision(self) -> str:
         """str: Datetime precision of the generators, represented as *ns*, *ms*,
         *s*, *m*, *h*, *D*, *M*, and *Y*."""
         return helper.datetime_precision(self.vals)
@@ -139,7 +139,7 @@ class Datetime(QuantileGenerator):
     def __str__(self) -> str:
         return (
             f"{self.__class__.__name__} from empiric quantiles, "
-            f"freq={self.freq}"
+            f"precision={self.precision}"
         )
 
     def _make(self, size: int) -> NDArray:
@@ -152,4 +152,4 @@ class Datetime(QuantileGenerator):
         Returns:
             NDArray: datetime array rounded to the generators precision
         """
-        return super()._make(size=size).astype(f"datetime64[{self.freq}]")
+        return super()._make(size=size).astype(f"datetime64[{self.precision}]")
