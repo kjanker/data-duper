@@ -29,8 +29,10 @@ class Constant(Generator):
             na_rate (float, optional): Rate at which NA occour in the data.
                 Must be in [0,1]. Defaults to 0.0.
         """
+        if dtype:
+            np.array(value, dtype=dtype)
+        self.dtype = dtype or np.array(value).dtype
         self.value = value
-        self.dtype = dtype if dtype else np.array(value).dtype
         self.na_rate = na_rate
 
     @classmethod

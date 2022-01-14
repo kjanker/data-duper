@@ -72,6 +72,11 @@ def test_ConstantGenerator_all_na():
     assert any(duped_values == value)
 
 
+def test_ConstantGenerator_Wrong_dtype():
+    with pytest.raises(ValueError):
+        generator.Constant(value="test", dtype=int)
+
+
 def test_ConstantGenerator_from_data():
     data = np.array([1, 1, 1, np.nan])
     duper = generator.Constant.from_data(data)
