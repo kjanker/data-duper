@@ -68,15 +68,32 @@ class Generator:
                 data[isna] = self.nan
         return data
 
-    @staticmethod
-    def validate(data: ArrayLike, dtype=None) -> NDArray:
+    @classmethod
+    def validate(cls, data: ArrayLike) -> NDArray:
+        """Validates the provided data to be processed in :meth:`from_data()`.
+        The data is checked to be not empty and of the correct type.
 
-        adata = np.asarray(data)
+        Args:
+            data (ArrayLike): data set of a type matching the generator
 
-        if adata.size == 0:
+        Raises:
+            ValueError: if data set is empty
+            TypeError: if data type does not match the generator
+
+        Returns:
+            NDArray: input data as valid NDArray
+        """
+        data = np.asarray(data)
+
+        if data.size == 0:
             raise ValueError("data must not be empty")
 
-        if dtype and not np.issubdtype(adata.dtype, dtype):
-            raise TypeError(f"data elements must be subdtypes of {dtype}")
+        if len(cls.DATA_DTYPES) > 0 and not any(
+            [np.issubdtype(data.dtype, dt) for dt in cls.DATA_DTYPES]
+        ):
+            dtypes_repr = ", ".join(
+                [dt.__module__ + "." + dt.__name__ for dt in cls.DATA_DTYPES]
+            )
+            raise TypeError(f"data must be subdtypes of {dtypes_repr}")
 
-        return adata
+        return data
