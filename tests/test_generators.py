@@ -131,10 +131,14 @@ def test_NumericGenerator_errors():
         generator.Numeric(vals=[2, 4], na_rate=1.5)
 
     with pytest.raises(TypeError):
-        generator.Numeric.from_data(data=np.array([], dtype=np.datetime64))
+        generator.Numeric.from_data(
+            data=np.array(
+                [np.datetime64("1"), np.datetime64("1")], dtype=np.datetime64
+            )
+        )
 
     with pytest.raises(TypeError):
-        generator.Numeric.from_data(data=np.array([], dtype=np.object_))
+        generator.Numeric.from_data(data=np.array(["1", "1"], dtype=np.object_))
 
     with pytest.raises(ValueError):
         generator.Numeric.from_data(data=np.array([], dtype=np.int_))
