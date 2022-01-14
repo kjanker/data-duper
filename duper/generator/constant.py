@@ -1,27 +1,51 @@
 """
 A generator for data containing a single value.
 """
+from __future__ import annotations
+
+from typing import Any
+
 import numpy as np
 import pandas as pd
-from numpy.typing import NDArray
+from numpy.typing import DTypeLike, NDArray
 
 from .base import Generator
 
 
 class Constant(Generator):
-    """Simplest generator method. Replicates data with a constant value."""
+    """A simple constant generator. Replicates data with a single constant
+    value (except for NA).
+    """
 
-    def __init__(self, value, dtype=None, na_rate: float = 0.0) -> None:
+    def __init__(
+        self, value: Any, dtype: DTypeLike = None, na_rate: float = 0.0
+    ):
+        """Initializes a new generator based on the provided constant **value**.
+
+        Args:
+            value (Any): constant value of the generator
+            dtype (DTypeLike, optional): By default, the dtype is derived from
+                **value**. Optionally, a valid numpy dtype can be provided.
+            na_rate (float, optional): Rate at which NA occour in the data.
+                Must be in [0,1]. Defaults to 0.0.
+        """
         self.value = value
         self.dtype = dtype if dtype else np.array(value).dtype
         self.na_rate = na_rate
 
     @classmethod
     def from_data(cls, data: NDArray):
-        """Init class from data set."""
+        """Initializes a new generator from the provided **data**. This is
+        a convenience interface and the preferred method to create a new
+        generator instance.
 
-        Generator.validate(data=data)
-        dtype = data.dtype
+        Args:
+            data (ArrayLike): set of valid data to create and fit the generator.
+
+        Raise:
+            ValueError: if data holds more than one unique value that is not NA.
+        """
+        data = cls.validate(data=data)
         # using pandas isna here since dtype might be object/string
         na_rate = sum(pd.isna(data)) / len(data)
         unique_values = pd.unique(data[~pd.isna(data)])
@@ -32,10 +56,19 @@ class Constant(Generator):
         if len(unique_values) < 1:
             unique_values = pd.unique(data)
 
-        return cls(value=unique_values[0], dtype=dtype, na_rate=na_rate)
+        return cls(value=unique_values[0], dtype=data.dtype, na_rate=na_rate)
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__} with value '{self.value}'"
 
     def _make(self, size: int) -> NDArray:
+        """Hidden maker method. Simply creates an array of the given **size**
+        repeating the generator's constant value.
+
+        Args:
+            size (int): number of elements in returned array.
+
+        Returns:
+            NDArray: array with one unique value.
+        """
         return np.full(shape=size, fill_value=self.value)
