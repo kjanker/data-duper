@@ -1,8 +1,12 @@
 """
 Generators for numeric data that can be inferred from empiric distribution.
 """
+from __future__ import annotations
+
+from typing import List, Union
+
 import numpy as np
-from numpy.typing import ArrayLike, NDArray
+from numpy.typing import ArrayLike, DTypeLike, NDArray
 
 from .. import helper
 from .base import Generator
@@ -18,14 +22,27 @@ class QuantileGenerator(Generator):
 
     """
 
+    DATA_DTYPES: List[DTypeLike] = [np.int_, np.float_, np.datetime64]
+
     def __init__(
         self,
         vals: ArrayLike,
         bins: ArrayLike = None,
-        dtype=None,
+        dtype: DTypeLike = None,
         na_rate: float = 0.0,
-    ) -> None:
+    ):
+        """Formal initializer. Consider using :meth:`from_data()` instead.
 
+        Args:
+            vals (ArrayLike): Array of data points
+            bins (ArrayLike, optional): By default, bins is calculated from a
+                linear space. Optionally, an array of bins with same length as
+                **vals** can be provided.
+            dtype (DTypeLike, optional): By default, the dtype is derived from
+                **vals**. Optionally, a valid numpy dtype can be provided.
+            na_rate (float, optional): Rate at which NaN occour in the data.
+                Must be in [0,1]. Defaults to 0.0.
+        """
         _vals = np.asarray(vals, dtype=dtype)
         if len(_vals.shape) != 1:
             raise ValueError("vals must be 1-dimensional")
@@ -49,12 +66,17 @@ class QuantileGenerator(Generator):
 
     @classmethod
     def from_data(cls, data: ArrayLike):
-        _data = np.asarray(data)
-        if _data.size == 0:
-            raise ValueError("data must not be empty")
-        vals = np.asarray(_data[~np.isnan(_data)])
-        dtype = _data.dtype
-        na_rate = 1 - vals.size / _data.size
+        """Initializes a new quantile generator from the provided data. This is
+        a convenience interface and the preferred method to create a new
+        generator instance.
+
+        Args:
+            data (ArrayLike): Set of valid data to create and fit the generator.
+        """
+        data = cls.validate(data=data)
+        vals = np.asarray(data[~np.isnan(data)])
+        dtype = data.dtype
+        na_rate = 1 - vals.size / data.size
         return cls(vals=vals, dtype=dtype, na_rate=na_rate)
 
     def __str__(self) -> str:
@@ -66,123 +88,53 @@ class QuantileGenerator(Generator):
 
 
 class Numeric(QuantileGenerator):
-    """Generator class recommended to replicate continous float data.
+    """Generator class recommended to replicate int and float data sets.
 
-    This is directly based on the meta QuantileGenerator class.
+    A new generator instance is best initialized via :meth:`from_data()` from a
+    given set of numeric data.
 
+    The generator draws new values from an interpolated empirical distribution
+    fitted on the provided data and
     """
 
-    def __init__(
-        self,
-        vals: ArrayLike,
-        bins: ArrayLike = None,
-        dtype=None,
-        na_rate: float = 0.0,
-    ) -> None:
-        super().__init__(vals, bins, dtype, na_rate)
+    DATA_DTYPES = [np.int_, np.float_]
 
-        self.gcd = helper.gcd(self.vals)
-
-    @classmethod
-    def from_data(cls, data: ArrayLike):
-        _data = np.asarray(data)
-        if not (
-            np.issubdtype(_data.dtype, np.float_)
-            or np.issubdtype(_data.dtype, np.int_)
-        ):
-            raise TypeError("data elements must be of numerical dtype")
-        return super().from_data(data=_data)
+    @property
+    def gcd(self) -> Union[int, float]:
+        """Union[int, float]: Precision of the generator, interpreted as the
+        greatest common divisor."""
+        return helper.gcd(self.vals)
 
     def _make(self, size: int) -> NDArray:
-        return helper.roundx(super()._make(size=size), x=self.gcd)
+        """Hidden maker method. This wraps the quantile _make with a rounding
+        function to ensure the values are rounded their initial precision (gcd).
 
+        Args:
+            size (int): number of elements in returned array
 
-class Float(QuantileGenerator):
-    """DEPRECATED - Use Numeric instead
-
-    Generator class recommended to replicate continous float data.
-
-    This is directly based on the meta QuantileGenerator class.
-
-    """
-
-    def __init__(
-        self,
-        vals: ArrayLike,
-        bins: ArrayLike = None,
-        dtype=None,
-        na_rate: float = 0.0,
-    ) -> None:
-        super().__init__(vals, bins, dtype, na_rate)
-
-        self.gcd = helper.gcd(self.vals)
-
-    @classmethod
-    def from_data(cls, data: ArrayLike):
-        _data = np.asarray(data)
-        if not np.issubdtype(_data.dtype, np.float_):
-            raise TypeError("data elements must be of floating dtype")
-        return super().from_data(data=_data)
-
-    def _make(self, size: int) -> NDArray:
-        return helper.roundx(super()._make(size=size), x=self.gcd)
-
-
-class Integer(QuantileGenerator):
-    """DEPRECATED - Use Numeric instead
-
-    Generator class recommended to replicate integer data.
-
-    This is based on the meta QuantileGenerator class.
-
-    """
-
-    def __init__(
-        self,
-        vals: ArrayLike,
-        bins: ArrayLike = None,
-        dtype=None,
-        na_rate: float = 0.0,
-    ) -> None:
-        super().__init__(vals, bins, dtype, na_rate)
-
-        self.gcd = np.gcd.reduce(self.vals)
-
-    @classmethod
-    def from_data(cls, data: ArrayLike):
-        _data = np.asarray(data)
-        if not np.issubdtype(_data.dtype, np.int_):
-            raise TypeError("data elements must be of integer dtype")
-        return super().from_data(data=_data)
-
-    def _make(self, size: int) -> NDArray:
+        Returns:
+            NDArray: numeric array rounded to the generators precision
+        """
         return helper.roundx(super()._make(size=size), x=self.gcd)
 
 
 class Datetime(QuantileGenerator):
     """Generator class recommended to replicate datetime data.
 
-    This is based on the meta QuantileGenerator class.
+    A new generator instance is best initialized via :meth:`from_data()` from a
+    given set of datetime data.
 
+    The generator draws new values from an interpolated empirical distribution
+    fitted on the provided data and
     """
 
-    def __init__(
-        self,
-        vals: ArrayLike,
-        bins: ArrayLike = None,
-        dtype=None,
-        na_rate: float = 0.0,
-    ) -> None:
-        super().__init__(vals, bins, dtype, na_rate)
+    DATA_DTYPES = [np.datetime64]
 
-        self.freq = helper.datetime_precision(self.vals)
-
-    @classmethod
-    def from_data(cls, data: ArrayLike):
-        _data = np.asarray(data)
-        if not np.issubdtype(_data.dtype, np.datetime64):
-            raise TypeError("data elements must be of datetime dtype")
-        return super().from_data(data=_data)
+    @property
+    def freq(self) -> str:
+        """str: Datetime precision of the generators, represented as *ns*, *ms*,
+        *s*, *m*, *h*, *D*, *M*, and *Y*."""
+        return helper.datetime_precision(self.vals)
 
     def __str__(self) -> str:
         return (
@@ -191,4 +143,13 @@ class Datetime(QuantileGenerator):
         )
 
     def _make(self, size: int) -> NDArray:
+        """Hidden maker method. This wraps the quantile _make with a rounding
+        function to ensure the datetimes are rounded their initial precision.
+
+        Args:
+            size (int): number of elements in returned array
+
+        Returns:
+            NDArray: datetime array rounded to the generators precision
+        """
         return super()._make(size=size).astype(f"datetime64[{self.freq}]")
