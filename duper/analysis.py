@@ -1,6 +1,8 @@
 """
 Module containing the helper functions for fitting the duper to data.
 """
+from __future__ import annotations
+
 from typing import Type
 
 import numpy as np
@@ -14,22 +16,17 @@ from .generator.base import Generator
 def find_best_generator(
     data: NDArray, category_threshold: float
 ) -> Type[Generator]:
-    """Finds the best generator class to replicate the provided data.
+    """Tries to find the best generator class to replicate the provided data.
 
-    Parameters
-    ---------
-    data: NDArray
-        training dataset with realistic data.
-    category_threshold: float
-        Fraction of unique values until which category generator is perferred,
-        should be in [0,1].
+    Args:
+        data (NDArray): training dataset with realistic data.
+        category_threshold (float): fraction of unique values until which
+            category generator is perferred, should be in [0,1].
 
-    Returns
-    ---------
-    Type[Generator]
-        the best generator class to replicate the provided data
+    Returns:
+        Type[Generator]: the best generator class to replicate the provided data
     """
-    Generator.validate(data=data)
+    data = Generator.validate(data=data)
 
     unique_values = pd.unique(data)
     unique_values = unique_values[~pd.isna(unique_values)]
