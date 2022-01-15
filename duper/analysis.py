@@ -11,12 +11,6 @@ from . import generator
 from .generator.base import Generator
 
 
-def fit_generator(data: NDArray, category_threshold: float) -> Generator:
-    return find_best_generator(
-        data=data, category_threshold=category_threshold
-    ).from_data(data)
-
-
 def find_best_generator(
     data: NDArray, category_threshold: float
 ) -> Type[Generator]:

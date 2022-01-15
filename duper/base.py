@@ -69,9 +69,10 @@ class Duper:
         """
         self._generators = {}
         for col in df.columns:
-            self._generators[col] = analysis.fit_generator(
-                data=df[col], category_threshold=category_threshold
-            )
+            data = df[col]
+            self._generators[col] = analysis.find_best_generator(
+                data=data, category_threshold=category_threshold
+            ).from_data(data)
 
     def make(self, size: int, with_na: bool = False) -> pd.DataFrame:
         """Create a new random pandas DataFrame after fitting the generator.
