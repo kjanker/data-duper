@@ -15,13 +15,12 @@ class Generator:
     DATA_DTYPES: List[DTypeLike] = []
     """Accepted data types of the generator."""
 
-    def __init__(self, data: NDArray) -> None:
-        self.dtype: DTypeLike = data.dtype
-        self.na_rate: float = 0.0
+    dtype: DTypeLike
+    na_rate: float
 
     @classmethod
     def from_data(cls, data: NDArray):
-        return cls(data=data)
+        raise NotImplementedError
 
     @property
     def nan(self):

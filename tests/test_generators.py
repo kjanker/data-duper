@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 
 from duper import generator
-from duper.generator.base import Generator
+from duper.generator.quantile import QuantileGenerator
 
 # Generator
 
@@ -30,7 +30,7 @@ from duper.generator.base import Generator
     ],
 )
 def test_Generator_dtype(test):
-    duper = Generator.from_data(data=test["data"])
+    duper = QuantileGenerator.from_data(data=test["data"])
     assert duper.dtype == test["dtype"]
     assert test["nan"](duper.nan)
 
