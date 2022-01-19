@@ -33,6 +33,8 @@ class Constant(Generator):
             np.array(value, dtype=dtype)
         self.dtype = dtype or np.array(value).dtype
         self.value = value
+        if na_rate < 0 or na_rate > 1:
+            raise ValueError("na_rate must be in [0,1]")
         self.na_rate = na_rate
 
     @classmethod
