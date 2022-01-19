@@ -20,8 +20,9 @@ def find_best_generator(
 
     Args:
         data (NDArray): training dataset with realistic data.
-        category_threshold (float): fraction of unique values until which
-            category generator is perferred, should be in [0,1].
+        category_threshold (float): fraction of unique values
+                until which category duper is perferred, should be in [0,1].
+                Defaults to 0.05.
 
     Returns:
         Type[Generator]: the best generator class to replicate the provided data

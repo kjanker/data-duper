@@ -1,6 +1,8 @@
 """
 The core module of data-duper.
 """
+from __future__ import annotations
+
 from typing import Dict, Hashable, List
 
 import pandas as pd
@@ -11,9 +13,25 @@ from .generator.base import Generator
 
 
 class Duper:
-    """The main class of data-duper. Use this to fit a data set and dupe it."""
+    """The main class of data-duper. Use this to fit a data set and dupe it.
 
-    def __init__(self) -> None:
+    Start by fitting the duper to your real pandas DataFrame, :meth:`fit()`.
+    Afterwards, you can generate new similar DataFrames of any size via
+    :meth:`make()`.
+
+    It is also possible to review the fitted duper and change the generator
+    of single columns.
+
+    Examples:
+        >>> df_real = ... # your pandas DataFrame
+        >>> duper = Duper()
+        >>> duper.fit(df=df_real)
+        >>> df_dupe = duper.make(size=10000)
+        >>> print(df_dupe)
+    """
+
+    def __init__(self):
+        """Creates a new empty duper instance."""
         self._generators: Dict[Hashable, Generator] = {}
 
     def __getitem__(self, item: Hashable):
@@ -46,26 +64,29 @@ class Duper:
 
     @property
     def generators(self) -> Dict[Hashable, Generator]:
+        """Dict: generators of the duper's columns."""
         return self._generators
 
     @property
     def columns(self) -> List[Hashable]:
+        """List: names of the duper's columns."""
         return list(self.generators.keys())
 
     @property
     def dtypes(self) -> Dict[Hashable, DTypeLike]:
+        """Dict: dtypes of the duper's columns."""
         return {k: v.dtype for k, v in self.generators.items()}
 
     def fit(self, df: pd.DataFrame, category_threshold: float = 0.05) -> None:
-        """Fit the data generator on a provided dataset.
+        """Fit the duper on the provided pandas DataFrame. First, the
+        best generator is derived from data and type of each column. Second, the
+        generator is fitted to the data.
 
-        Parameters
-        ---------
-        df: pd.DataFrame
-            training dataset with realistic data.
-        category_threshold: float, default=0.05
-            Fraction of unique values until which category duper is perferred,
-            should be in [0,1].
+        Args:
+            df (pd.DataFrame): pandas DataFrame with your data.
+            category_threshold (float, optional): fraction of unique values
+                until which category duper is perferred, should be in [0,1].
+                Defaults to 0.05.
         """
         self._generators = {}
         for col in df.columns:
@@ -77,17 +98,13 @@ class Duper:
     def make(self, size: int, with_na: bool = False) -> pd.DataFrame:
         """Create a new random pandas DataFrame after fitting the generator.
 
-        Parameters
-        ---------
-        size: int
-            the size of the new data frame
-        with_na: bool, default=False
-            defines, if NA values will be replicated to the new data frame
+        Args:
+            size (int): the number of rows in the new data frame
+            with_na (bool, optional): NA values can be replicated to the new
+            data frame. Defaults to False.
 
-        Returns
-        ---------
-        d.DataFrame
-            Data set of a similar structure as the fitted one.
+        Returns:
+            pd.DataFrame: generated new data set
         """
         df = pd.DataFrame(data=None, index=None, columns=self.columns).astype(
             self.dtypes
