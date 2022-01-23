@@ -90,9 +90,7 @@ class Generator:
         if len(cls.DATA_DTYPES) > 0 and not any(
             [np.issubdtype(data.dtype, dt) for dt in cls.DATA_DTYPES]
         ):
-            dtypes_repr = ", ".join(
-                [dt.__module__ + "." + dt.__name__ for dt in cls.DATA_DTYPES]
-            )
+            dtypes_repr = ", ".join(map(str, cls.DATA_DTYPES))
             raise TypeError(f"data must be subdtypes of {dtypes_repr}")
 
         return data
