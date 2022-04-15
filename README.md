@@ -49,6 +49,8 @@ df_dupe = duper.make(size=10000)
 ```
 
 ## Open issues
+- capture index-like data, e.g., counting integers, time series
+- handle numerical data with pre- or subseeding characters, e.g., '$100', '100€', '50.25 mm'
 - include optional correlations between selected rows
 - improve algorithm of regex duper
 
@@ -56,7 +58,7 @@ df_dupe = duper.make(size=10000)
 [MIT](LICENSE)
 
 ## Documentation
-The official documentation is hosted on readthedocs.org: https://readthedocs.org/projects/data-duper/badge/?version=latest
+The official documentation is hosted on readthedocs.org: https://data-duper.readthedocs.io/en/latest/?badge=latest
 
 ## Get in touch
 
