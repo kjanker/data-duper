@@ -40,8 +40,6 @@ class Category(Generator):
             raise ValueError("vals must be 1-dimensional")
         if p.shape != vals.shape:
             raise ValueError("vals and bins do not have the same shape")
-        if sum(p) != 1:
-            raise ValueError("propabilaty array p must add up to one")
 
         self._choices = pd.Series(p, index=vals)
         self.dtype = dtype or np.array(vals).dtype
@@ -60,7 +58,7 @@ class Category(Generator):
         """
         data = cls.validate(data=data)
         _choices = pd.value_counts(data, normalize=True, dropna=True)
-        na_rate = 1 - _choices.size / data.size
+        na_rate = pd.isna(data).sum() / data.size
         return cls(vals=_choices.index, p=_choices, na_rate=na_rate)
 
     def __str__(self) -> str:
