@@ -8,6 +8,8 @@ data-duper is a tool to replicate the structure of private or protected data for
 [![python: ≥3.8](https://img.shields.io/badge/%20python-≥3.8-%23FFD43B?style=flat&labelColor=4B8BBE&logo=python&logoColor=FFD43B)](https://www.python.org/)
 [![code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
+[![Documentation Status](https://readthedocs.org/projects/data-duper/badge/?version=latest)](https://data-duper.readthedocs.io/en/latest/?badge=latest)
+
 
 ## What does it solve?
 
@@ -49,6 +51,12 @@ df_dupe = duper.make(size=10000)
 ## Open issues
 - include optional correlations between selected rows
 - improve algorithm of regex duper
+
+## License
+[MIT](LICENSE)
+
+## Documentation
+The official documentation is hosted on readthedocs.org: https://readthedocs.org/projects/data-duper/badge/?version=latest
 
 ## Get in touch
 
