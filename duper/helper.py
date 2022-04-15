@@ -92,8 +92,8 @@ def gcd(a: ArrayLike) -> Union[int, float]:
     """
     a = np.asarray(a)
     n = number_precision(a)
-    int_repr = np.around(a * (10 ** n)).astype(np.int_)
-    gcd_float = np.around(np.gcd.reduce(int_repr) / (10 ** n), decimals=n)
+    int_repr = np.around(a * (10**n)).astype(np.int_)
+    gcd_float = np.around(np.gcd.reduce(int_repr) / (10**n), decimals=n)
     return a.dtype.type(gcd_float).item()
 
 
