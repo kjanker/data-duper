@@ -3,7 +3,7 @@ Module containing the abstract base class for all generators.
 """
 from __future__ import annotations
 
-from typing import Any, List
+from typing import List
 
 import numpy as np
 from numpy.typing import ArrayLike, DTypeLike, NDArray
@@ -15,7 +15,7 @@ class Generator:
     DATA_DTYPES: List[DTypeLike] = []
     """Accepted data types of the generator."""
 
-    dtype: DTypeLike = Any
+    dtype: DTypeLike = None
     """Data type of the generated array."""
 
     na_rate: float = 0.0
