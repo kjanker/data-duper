@@ -31,7 +31,6 @@ duper.generator.Constant
       ~Constant.DATA_DTYPES
       ~Constant.dtype
       ~Constant.na_rate
-      ~Constant.nan
    
    
 

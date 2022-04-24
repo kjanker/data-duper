@@ -31,7 +31,6 @@ duper.generator.Regex
       ~Regex.DATA_DTYPES
       ~Regex.dtype
       ~Regex.na_rate
-      ~Regex.nan
    
    
 

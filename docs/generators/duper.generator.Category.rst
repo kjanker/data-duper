@@ -32,7 +32,6 @@ duper.generator.Category
       ~Category.categories
       ~Category.dtype
       ~Category.na_rate
-      ~Category.nan
    
    
 

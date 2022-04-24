@@ -19,7 +19,6 @@ Generators
         ~Generator.DATA_DTYPES
         ~Generator.dtype
         ~Generator.na_rate
-        ~Generator.nan
 
 The following generators are implemented:
 

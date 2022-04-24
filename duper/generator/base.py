@@ -6,6 +6,7 @@ from __future__ import annotations
 from typing import List
 
 import numpy as np
+import pandas as pd
 from numpy.typing import ArrayLike, DTypeLike, NDArray
 
 
@@ -25,14 +26,6 @@ class Generator:
     def from_data(cls, data: NDArray):
         raise NotImplementedError
 
-    @property
-    def nan(self):
-        """The NA value of the generator, either NaN or NaT."""
-        if np.issubdtype(self.dtype, np.datetime64):
-            return np.datetime64("NaT")
-        else:
-            return np.nan
-
     def _make(self, size: int) -> NDArray:
         """Hidden maker method. This method does the actual work before
         :meth:`make()` continues with the postprocessing.
@@ -48,7 +41,7 @@ class Generator:
         """
         raise NotImplementedError
 
-    def make(self, size: int, with_na: bool = False) -> NDArray:
+    def make(self, size: int, with_na: bool = True) -> pd.Series:
         """Creates a new data array of a given size. The values are generatored
         randomly for each execution. NA values can be inserted optionally.
 
@@ -56,19 +49,21 @@ class Generator:
             size (int): number of elements in returned array
             with_na (bool, optional): Allows to replicate NA occurrence in data.
                 If True, NA values are randomly inserted in the data. The rate
-                is fitted from the data. Defaults to False.
+                is fitted from the data. Defaults to True.
 
         Returns:
-            NDArray: array with newly generatored values
+            pd.Series: array with newly generatored values
         """
-        data = self._make(size=size).astype(self.dtype)
         if with_na:
-            isna = np.random.uniform(size=size) < self.na_rate
-            if any(isna):
-                if np.issubdtype(self.dtype, np.int_):
-                    data = data.astype(np.float_)
-                data[isna] = self.nan
-        return data
+            is_value = np.random.uniform(size=size) > self.na_rate
+            s = pd.Series(data=np.empty(size), dtype=self.dtype)
+            s.loc[is_value] = pd.Series(
+                data=self._make(size=sum(is_value)), dtype=self.dtype
+            )
+            s.loc[~is_value] = pd.NA
+            return s
+        else:
+            return pd.Series(data=self._make(size=size), dtype=self.dtype)
 
     @classmethod
     def validate(cls, data: ArrayLike) -> NDArray:

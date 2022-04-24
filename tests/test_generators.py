@@ -15,24 +15,20 @@ from duper.generator.quantile import QuantileGenerator
             "data": np.datetime64("2021-12-21")
             + np.random.randint(100, size=10),
             "dtype": np.dtype("<M8[D]"),
-            "nan": np.isnat,
         },
         {
             "data": np.random.randint(100, size=10),
             "dtype": np.dtype("int"),
-            "nan": np.isnan,
         },
         {
             "data": np.random.uniform(size=10),
             "dtype": np.dtype("float"),
-            "nan": np.isnan,
         },
     ],
 )
 def test_Generator_dtype(test):
     duper = QuantileGenerator.from_data(data=test["data"])
     assert duper.dtype == test["dtype"]
-    assert test["nan"](duper.nan)
 
 
 # Constant generator
@@ -52,24 +48,27 @@ def test_ConstantGenerator_size():
 def test_ConstantGenerator_no_na(value):
     na_rate = 0.0
     duper = generator.Constant(value=value, na_rate=na_rate)
-    duped_values = duper.make(size=100)
+    duped_values = duper.make(size=100, with_na=True)
     assert all(duped_values == value)
+    assert not any(duped_values.isna())
 
 
 def test_ConstantGenerator_few_na():
     value = 3
     na_rate = 0.1
     duper = generator.Constant(value=value, na_rate=na_rate)
-    duped_values = duper.make(size=100)
+    duped_values = duper.make(size=100, with_na=True)
     assert any(duped_values == value)
+    assert any(duped_values.isna())
 
 
 def test_ConstantGenerator_all_na():
     value = 3
     na_rate = 1.0
     duper = generator.Constant(value=value, na_rate=na_rate)
-    duped_values = duper.make(size=100)
-    assert any(duped_values == value)
+    duped_values = duper.make(size=100, with_na=True)
+    assert not any(duped_values == value)
+    assert all(duped_values.isna())
 
 
 def test_ConstantGenerator_Wrong_dtype():

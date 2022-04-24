@@ -31,7 +31,6 @@ duper.generator.Numeric
       ~Numeric.DATA_DTYPES
       ~Numeric.dtype
       ~Numeric.na_rate
-      ~Numeric.nan
       ~Numeric.precision
    
    

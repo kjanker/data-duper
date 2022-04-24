@@ -31,7 +31,6 @@ duper.generator.Datetime
       ~Datetime.DATA_DTYPES
       ~Datetime.dtype
       ~Datetime.na_rate
-      ~Datetime.nan
       ~Datetime.precision
    
    
